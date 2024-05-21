@@ -21,7 +21,7 @@ const cacheList = [
   "./assets/js/patches.js",
 ];
 /** 对 main.9efe80.js 进行修改，以增强功能和修复bug */
-const patchJS=`import(\`\${window.location.origin}\${window.location.pathname}assets/js/patches.js\`)`
+const patchJS = `import(\`\${window.location.origin}\${window.location.pathname}assets/js/patches.js\`)`;
 const jsModifyList = {
   /** 修复：多索雷斯场景，搜索干员按钮列表里没有龙舌兰的问题 */
   [`row","c`]: `row","char_486_takila","c`,
@@ -125,11 +125,18 @@ async function forgeFakeResponse(url, event, isActivityApi = false) {
   };
   /** 请求的API名称 */
   const apiName = url.pathname.slice(1);
+  // 如果页面请求了退出登录，则跳转到控制页面
   if (apiName == "user/info/v1/logout") {
     const client = await self.clients.get(event.clientId);
     if (client instanceof WindowClient) {
       await client.navigate("./?control");
+      return new Response(null, { status: 204 });
     }
+  }
+  // 对抽奖请求返回随机结果
+  if (apiName == "activity/echoes-of-terra/api/activity/draw") {
+    const luckyNum = Math.random();
+    return jsonResponse({ code: 0, msg: "", data: { bingo: luckyNum > 0.5 ? 1 : 0 }, timestamp: new Date().getTime() });
   }
   /** 预先缓存好的API响应列表 */
   const apiResponses = await cache
