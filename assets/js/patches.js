@@ -95,6 +95,6 @@ export async function changeBGM(audioInstance) {
     }
   });
   const bgmUrl = await getBGMUrl();
-  bgmUrl && (audioInstance.src = bgmUrl);
+  bgmUrl && (audioInstance.audioElem.src = bgmUrl);
   audioInstance.play();
 }
