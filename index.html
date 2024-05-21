@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width,height=device-height,viewport-fit=cover" />
+    <meta name="copyright" content="Hypergryph" />
+    <meta name="keywords" content="明日方舟,鹰角网络,arknights" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>泰拉巡旅 - 明日方舟 Arknights</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico" />
+    <link rel="stylesheet" href="./assets/css/picnic.min.css" />
+    <link rel="stylesheet" href="./assets/css/control.css" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", async () => {
+          try {
+            const registration = await navigator.serviceWorker.register("sw.js");
+            console.log("Service Worker注册成功:", registration.scope);
+          } catch (error) {
+            console.error("Service Worker注册失败:", error);
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <nav>
+      <span class="brand">《泰拉巡旅》离线版参数修改</span>
+      <div class="menu">
+        <a href="#home" tabindex="-1" class="top pseudo button">回到顶部</a>
+        <a href="./" class="pseudo button" target="_blank">回到活动主页面</a>
+        <a href="https://ak.hypergryph.com/activity/echoes-of-terra/" class="pseudo button" target="_blank">去官方页面</a>
+      </div>
+    </nav>
+    <main id="home">
+      <section class="flex five">
+        <aside class="full fifth-1000">
+          <h2>目录</h2>
+          <div class="side-index flex two three-500 five-800 one-1000"></div>
+        </aside>
+        <article class="main-content full four-fifth-1000"></article>
+      </section>
+    </main>
+  </body>
+  <script type="module" src="./assets/js/control.js"></script>
+</html>

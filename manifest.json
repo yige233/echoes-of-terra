@@ -1,0 +1,16 @@
+{
+  "name": "泰拉巡旅 - 明日方舟 Arknights",
+  "short_name": "泰拉巡旅",
+  "display": "standalone",
+  "description": "《泰拉巡旅》是鹰角网络于2024年开展的五周年庆典活动的衍生web活动。",
+  "start_url": "/",
+  "theme_color": "#679ffc",
+  "background_color": "#fefefe",
+  "icons": [
+    {
+      "src": "./assets/images/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

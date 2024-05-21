@@ -1,0 +1,128 @@
+@media screen and (max-width: 768px) {
+  nav {
+    height: 5em;
+  }
+  #home > article > div {
+    padding: 5em 0 0 0;
+  }
+}
+@media screen and (min-width: 769px) {
+  #home > article > div {
+    padding: 3em 0 0 0;
+  }
+}
+aside .side-index {
+  position: sticky;
+  top: 5em;
+}
+aside .side-index a.button {
+  text-align: left;
+}
+#home article h2 {
+  line-height: 1;
+}
+#home article h3 {
+  margin-bottom: 0.6em;
+}
+#home aside h2 {
+  margin-top: 0;
+  padding: 1.25em 0;
+  line-height: 1;
+}
+#home > section {
+  background: #fff;
+  text-align: left;
+  width: 80%;
+  margin: 0 auto;
+  padding: 80px 0 0;
+}
+#home aside a.button {
+  display: block;
+}
+#home aside a.pseudo {
+  color: #0074d9;
+  margin: 0;
+}
+.menu > a {
+  margin: 0px;
+}
+article.card > * {
+  padding: 10px;
+}
+input,
+select {
+  max-width: 200px;
+  margin: 0px 10px;
+}
+input[type="color"] {
+  width: 50px;
+}
+textarea {
+  resize: vertical;
+  max-width: 300px;
+  height: 50px;
+}
+button {
+  margin: 2px 5px;
+}
+p {
+  white-space: break-spaces;
+}
+td,
+th {
+  padding: 0.3em 0.4em 0.3em 0.6em;
+}
+table[class="primary"] {
+  width: 100%;
+  display: table;
+}
+.checkable {
+  margin-left: 0.5em;
+}
+*[data-tooltip] {
+  cursor: help;
+}
+dialog {
+  min-width: 300px;
+  max-width: 80%;
+  border: none;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  padding: 0;
+}
+dialog[open] {
+  animation: slide-up 0.4s ease-out;
+}
+dialog > div {
+  display: grid;
+  padding: 12px;
+  grid-gap: 0.3em;
+}
+.dialog-title {
+  text-align: center;
+  font-size: 1.5rem;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.dialog-content {
+  min-height: 100px;
+  display: grid;
+  white-space: break-spaces;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    top: 10%;
+  }
+  100% {
+    opacity: 1;
+    top: 0%;
+  }
+}
