@@ -46,10 +46,15 @@ export async function touchVoice(e) {
       currentVoice = fallbackVoice;
     }
   }
-
+  /** 播放错误标志 */
+  let errorFlag = false;
   const urlTemplate = `https://torappu.prts.wiki/assets/audio/{{voice}}/${charId}{{suffix}}/cn_${voiceId}.mp3`;
   globalAudioElem.addEventListener("error", () => {
+    //第二次播放失败，停止播放，并打印出错的url
+    if (errorFlag) return console.error("播放语音失败：", globalAudioElem.src);
+    // 首次播放失败，尝试播放默认语音
     globalAudioElem.src = urlTemplate.replace(/{{voice}}/, fallbackVoice).replace(/{{suffix}}/, "");
+    errorFlag = true;
   });
 
   globalAudioElem.src = urlTemplate.replace(/{{voice}}/, currentVoice).replace(/{{suffix}}/, suffix);
