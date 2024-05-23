@@ -2,6 +2,8 @@
 
 《明日方舟》五周年网页活动[《泰拉巡旅》](https://ak.hypergryph.com/activity/echoes-of-terra/)的一个备份。
 
+介绍视频：[《泰拉巡旅》，但是离线版](https://www.bilibili.com/video/BV1TZ421x7sD)
+
 - 通过 ServiceWorker 接管页面内的所有请求，并根据请求返回伪造的响应。
 - 将所有资源压缩为.zip 文件，并通过[jsZIP](https://github.com/Stuk/jszip)解压文件，避免了大量请求。
 - 借助 CacheStorage，将解压后的资源显式缓存到浏览器中，同时供 ServiceWorker 使用。
