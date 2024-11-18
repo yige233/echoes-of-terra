@@ -21,7 +21,7 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", async () => {
           try {
-            const registration = await navigator.serviceWorker.register("sw.js");
+            const registration = await navigator.serviceWorker.register("sw.js", { type: "module" });
             console.log("Service Worker注册成功:", registration.scope);
           } catch (error) {
             console.error("Service Worker注册失败:", error);
