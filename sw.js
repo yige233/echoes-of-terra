@@ -1,42 +1,13 @@
-/** 缓存存储key */
-const cacheStorageKey = "cache-v1";
+import { cacheStorageKey, cacheList, jsModifyList, htmlModifyList, jsonResponse } from "./assets/js/utils.js";
+
+/** 当前版本号。如果版本号发生变动，则删除缓存的cacheList */
+const version = 5;
 
 /** 记录不在缓存中的web.hycdn.cn的资源url */
 let lostURLs = [];
 
 /** web-api.hypergryph.com API中，记录登录状态 */
 let logged = false;
-
-/** 预缓存的资源列表 */
-const cacheList = [
-  "./",
-  "manifest.json",
-  "./assets/js/jszip.min.js",
-  "./assets/images/favicon.ico",
-  "./assets/images/icon.png",
-  "./assets/css/control.css",
-  "./assets/css/picnic.min.css",
-  "./assets/js/control.js",
-  "./assets/js/utils.js",
-  "./assets/js/patches.js",
-];
-/** 对 main.9efe80.js 进行修改，以增强功能和修复bug */
-const patchJS = `import(\`\${window.location.origin}\${window.location.pathname}assets/js/patches.js\`)`;
-const jsModifyList = {
-  /** 修复：多索雷斯场景，搜索干员按钮列表里没有龙舌兰的问题 */
-  [`row","c`]: `row","char_486_takila","c`,
-  /** 增强：为预览模式按钮增加了同时进入全屏的功能 */
-  [`w_button"})`]: `w_button"});if(x===srf.PREVIEW){document.fullscreenElement&&document.exitFullscreen()}else{document.querySelector(".pntXB7").requestFullscreen()}`,
-  /** 增强：点击场景中的小人，可以播放对应干员的语音 */
-  [`this.activateCallback=function(){`]: `this.activateCallback=function(){${patchJS}.then(module=>module.touchVoice(e));`,
-  /** 增强：可自定义BGM */
-  [`!0,suspendWhenHidden:!0,suspendWhenHiddenInSkland:!0}),`]: `false,suspendWhenHidden:!0,suspendWhenHiddenInSkland:!0});${patchJS}.then(module=>module.changeBGM(o9));var `,
-};
-
-const htmlModifyList = {
-  /** 为html文档添加图标 */
-  [`</title>`]: `</title><link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico" />`,
-};
 
 /** 各个域名下的API的伪造方法 */
 const hostHandler = {
@@ -157,11 +128,6 @@ async function forgeFakeResponse(url, event, isActivityApi = false) {
   return new Response(null, { status: 404 });
 }
 
-/** 包装json响应 */
-function jsonResponse(data, headers = {}, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", ...headers } });
-}
-
 async function fetchHandler(event) {
   const url = new URL(event.request.url);
   const cache = await caches.open(cacheStorageKey);
@@ -195,8 +161,24 @@ async function fetchHandler(event) {
   return new Response(null, { status: 204 });
 }
 
-self.addEventListener("install", () => {
+self.addEventListener("install", (event) => {
   self.skipWaiting();
-  caches.open(cacheStorageKey).then((cache) => cache.addAll(cacheList));
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(cacheStorageKey);
+      const currentAppVer = await cache
+        .match("https://dummy/version")
+        .then((res) => res.json())
+        .then((res) => res.version)
+        .catch(() => ({ version: 0 }));
+      if (version != currentAppVer) {
+        for (const i of cacheList) {
+          await cache.delete(i);
+        }
+      }
+      await cache.addAll(cacheList);
+      await cache.put(new Request(`https://dummy/version`), jsonResponse({ version: version }));
+    })()
+  );
 });
 self.addEventListener("fetch", (event) => event.respondWith(fetchHandler(event)));

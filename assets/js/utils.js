@@ -2368,6 +2368,15 @@ export const bannedCharList = [
 ];
 /** 区域id列表 */
 export const regionList = {
+  "01": { id: "01", name: "罗德岛", regionIds: ["01", "a1", "a2"] },
+  "02": { id: "02", name: "玻利瓦尔", regionIds: ["02", "a3"] },
+  "03": { id: "03", name: "汐斯塔", regionIds: ["03", "a4"] },
+  "04": { id: "04", name: "萨尔贡", regionIds: ["04", "a5"] },
+  "05": { id: "05", name: "米诺斯", regionIds: ["05"] },
+  "06": { id: "06", name: "伊比利亚", regionIds: ["6a", "6b"] },
+  "07": { id: "07", name: "阿戈尔", regionIds: ["07"] },
+  "08": { id: "08", name: "拉特兰", regionIds: ["08", "a6"] },
+  "09": { id: "09", name: "雷姆必拓", regionIds: ["09", "a7"] },
   10: { id: "10", name: "炎", regionIds: ["10", "11a", "11b", "a8"] },
   12: { id: "12", name: "东", regionIds: ["12"] },
   13: { id: "13", name: "乌萨斯", regionIds: ["13", "a9", "b1"] },
@@ -2378,15 +2387,6 @@ export const regionList = {
   18: { id: "18", name: "莱塔尼亚", regionIds: ["18"] },
   19: { id: "19", name: "叙拉古", regionIds: ["19a", "19b"] },
   20: { id: "20", name: "维多利亚", regionIds: ["20", "21", "b5"] },
-  "01": { id: "01", name: "罗德岛", regionIds: ["01", "a1", "a2"] },
-  "02": { id: "02", name: "玻利瓦尔", regionIds: ["02", "a3"] },
-  "03": { id: "03", name: "汐斯塔", regionIds: ["03", "a4"] },
-  "04": { id: "04", name: "萨尔贡", regionIds: ["04", "a5"] },
-  "05": { id: "05", name: "米诺斯", regionIds: ["05"] },
-  "06": { id: "06", name: "伊比利亚", regionIds: ["6a", "6b"] },
-  "07": { id: "07", name: "阿戈尔", regionIds: ["07"] },
-  "08": { id: "08", name: "拉特兰", regionIds: ["08", "a6"] },
-  "09": { id: "09", name: "雷姆必拓", regionIds: ["09", "a7"] },
 };
 /** 构建响应时，为压缩包内的文件设置mimetype */
 export const MineTypes = {
@@ -2569,6 +2569,55 @@ export const APIMap = {
   "voice-settings": { enable: true, default: "voice", custom: {} },
   "bgm-settings": { random: true, current: "", bgmList: [] },
 };
+
+/** 预缓存的资源列表 */
+export const cacheList = [
+  "./",
+  "manifest.json",
+  "./assets/js/jszip.min.js",
+  "./assets/images/favicon.ico",
+  "./assets/images/icon.png",
+  "./assets/css/control.css",
+  "./assets/css/picnic.min.css",
+  //"./assets/js/control.js",
+  "./assets/js/utils.js",
+  // "./assets/js/patches.js",
+];
+/** 对 main.9efe80.js 进行修改，以增强功能和修复bug */
+const patchJsPath = `${self.location.origin}/${self.location.pathname.replace("sw.js", "")}assets/js/patches.js`;
+export const jsModifyList = {
+  /** 导入自定义功能 */
+  [`!function(){try{`]: `import {touchVoice,modifyCharData,changeBGM,fullscreen,debug} from "${patchJsPath}";!function(){try{`,
+  /** 修复：多索雷斯场景，搜索干员按钮列表里没有龙舌兰的问题 */
+  [`row","c`]: `row","char_486_takila","c`,
+  /** 增强：为预览模式按钮增加了同时进入全屏的功能 */
+  [`w_button"})`]: `w_button"});fullscreen(x,srf);`,
+  /** 增强：点击场景中的小人，可以播放对应干员的语音 */
+  [`this.activateCallback=function(){`]: `this.activateCallback=function(){touchVoice(e);`,
+  /** 增强：可自定义BGM */
+  [`Skland:!0}),`]: `Skland:!0});changeBGM(o9);var `,
+  /** 以下三条修改均为：添加自定义干员小人 */
+  [`function X$(f)`]: `modifyCharData("charInMap",Y$);function X$(f)`,
+  [`,Pef=n.p`]: `;modifyCharData("roomMeta",Tef);var Pef=n.p`,
+  [`,Tb=JSON.parse`]: `;modifyCharData("charMeta",Ob);var Tb=JSON.parse`,
+  /** 用于调试自定义干员小人。QJ是检测点击位置是否在hitMap内的函数 */
+  [`QJ=`]: `QJ=debug(NJ),FFFFFFFFF=`,
+  [`this.characterData=e,this.hitMap=DJ(e.hitMap)`]: `this.characterData=e,this.hitMap=DJ(e.hitMap),(e.id=="doctor")&&console.log(this)`,
+};
+
+export const htmlModifyList = {
+  /** 为html文档添加图标 */
+  [`</title>`]: `</title><link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico" />`,
+  /** 修改js标签的属性为module，方便导入自定义功能 */
+  [`<script defer="defer"`]: `<script type="module" defer="defer"`,
+};
+
+/** 包装json响应 */
+export function jsonResponse(data, headers = {}, status = 200) {
+  const json = JSON.stringify(data);
+  return new Response(json, { status, headers: { "content-type": "application/json", "content-length": json.length, ...headers } });
+}
+
 /**
  * 创建一个元素并设置其属性、事件监听器以及子元素。
  * @param {string} tagName - 要创建的元素的标签名。
@@ -2606,6 +2655,66 @@ export function html(tagName, ...args) {
     element.append(child);
   }
   return element;
+}
+/**
+ * 为图像生成hitMap数据
+ * @param {Image} imageObj 图像对象
+ * @returns
+ */
+export function createHitMap(imageObj) {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = imageObj.width;
+  canvas.height = imageObj.height;
+  ctx.drawImage(imageObj, 0, 0);
+  const imageData = ctx.getImageData(0, 0, imageObj.width, imageObj.height);
+  const width = imageData.width;
+  const height = imageData.height;
+  // 每个像素块的大小
+  const blockSize = 4;
+  // 结果数组
+  const result = [];
+  // 临时数组
+  let cellArr = [];
+  // 开始对循环每个像素块
+  for (let y = 0; y < height; y += blockSize) {
+    for (let x = 0; x < width; x += blockSize) {
+      // 跳出循环的flag
+      let breakFlag = false;
+      // 如果临时数组长度为8，
+      if (cellArr.length == 8) {
+        // 将临时数组转换为拼接为二进制字符串
+        const binStr = cellArr.join("");
+        // 将二进制字符串转换为十进制数字
+        const decimalNum = parseInt(binStr, 2);
+        // 十进制数字转换为十六进制字符串
+        const hexStr = decimalNum.toString(16).padStart(2, 0);
+        // 将数据放入结果数组，并重置临时数组
+        result.push(hexStr);
+        cellArr = [];
+      }
+      // 开始循环4x4像素块内部。这里的处理方式是：只要有任意不透明像素，就认为其可点击。实际上与官方hitMap的算法不一致。
+      for (let j = 0; j < blockSize; j++) {
+        if (breakFlag) break;
+        for (let i = 0; i < blockSize; i++) {
+          // 获取当前像素块的透明度
+          const index = ((y + j) * width + (x + i)) * 4 + 3;
+          const alpha = imageData.data[index];
+          //如果任意像素透明度大于0，则向cellArr内放入1，并跳出循环
+          if (alpha > 0) {
+            cellArr.push(1);
+            breakFlag = true;
+            break;
+          }
+        }
+      }
+      if (breakFlag) continue;
+      // 循环完毕，说明当前像素块没有透明度，向cellArr内放入0
+      cellArr.push(0);
+    }
+  }
+  // 将结果拼接为字符串
+  return result.join("");
 }
 /** 对话框 */
 export class Dialog {

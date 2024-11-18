@@ -1,0 +1,18 @@
+{
+  "id": "doctor",
+  "name": "博士",
+  "appellation": "Doctor",
+  "profession": "CASTER",
+  "keywords": "doctor",
+  "roomId": "06",
+  "offset": { "x": 284, "y": 580 },
+  "noMask": false,
+  "zIndex": 3,
+  "size": { "x": 189, "y": 240 },
+  "modifiedBlocks": [
+    {
+      "blocks": ["r_1_42_505_495", "r_1_42_506_495"],
+      "zIndex": 1
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import "./jszip.min.js";
-import { cacheStorageKey, APIMap, MineTypes, html, Dialog, chaosList, regionList, charList, bannedCharList, voiceSources } from "./utils.js";
+import { cacheStorageKey, APIMap, MineTypes, html, Dialog, chaosList, regionList, charList, bannedCharList, voiceSources, createHitMap } from "./utils.js";
 
 /** 缓存存储 */
 const MyCache = await caches.open(cacheStorageKey);
@@ -190,6 +190,14 @@ function addItem({ id, name, desc, contentElem = [] }) {
   const mainElem = html("div", { id }, html("h2", name), desc && html("p", desc), ...contentElem);
   sideIndexElem.append(sideElem);
   mainContentElem.append(mainElem);
+  return {
+    sideElem,
+    mainElem,
+    remove() {
+      sideElem.remove();
+      mainElem.remove();
+    },
+  };
 }
 /**
  * 创建单选框。
@@ -336,10 +344,6 @@ addItem({
         /** 初始化一个计时器，用来控制修改按钮文字的间隔 */
         let timer = 0;
         try {
-          // 检测JSZip的Blob支持情况
-          if (!window.JSZip?.support?.blob) {
-            throw new Error("当前浏览器不支持JSZip的Blob功能，无法解析压缩包。");
-          }
           // 如果压缩包数据为空，则从web下载压缩包
           if (!zipData) {
             const getdlResult = await download(zipName);
@@ -788,3 +792,83 @@ addItem({
     },
   ],
 });
+addItem({
+  id: "custom-char",
+  name: "添加自定义干员",
+  desc: "可以添加自定义干员到地图中。hitMap一般会根据full.png自动生成，但如果有特殊情况（比如face.png在full.png外），需要手动生成hitMap，以确保设置正确的点击触发位置",
+  contentElem: [
+    () => {
+      function buildEntry(data) {
+        const { id, name, enabled, noMask } = data;
+        const btnDel = buttonElement("error", "删除", async () => {
+          customChar.splice(getIndex(id), 1);
+          await MyCache.delete(`https://dummy/${vPath}avatar/${id}.png`);
+          await MyCache.delete(`https://dummy/characters/${id}/face.png`);
+          await MyCache.delete(`https://dummy/characters/${id}/face_active.png`);
+          await MyCache.delete(`https://dummy/characters/${id}/full.png`);
+          if (!noMask) await MyCache.delete(`https://dummy/characters/${id}/mask.png`);
+          $("custom-characters", customChar);
+          container.remove();
+        });
+        const checkboxElem = checkbox("已启用：", enabled, (checked) => {
+          customChar[getIndex(id)].enabled = checked;
+          $("custom-characters", customChar);
+        });
+        const container = html("div", { "char-id": id }, "干员：", name, "    ", checkboxElem, btnDel);
+        return container;
+      }
+      const vPath = `arknights/activity/echoes-of-terra/mapResource/`;
+      const header = { "content-type": "image/png" };
+      const customChar = $("custom-characters") || [];
+      const child = [];
+      const getIndex = (id) => customChar.findIndex((i) => i.id == id);
+      const btnAdd = buttonElement("success", "上传干员资源包", async () => {
+        const upload = html("input", { type: "file", accept: "application/zip" });
+        dialog.on("ok", async () => {
+          const file = upload.files[0] || undefined;
+          if (!file) return;
+          const zip = await window.JSZip.loadAsync(file);
+          try {
+            const meta = JSON.parse(await zip.file("meta.json").async("text"));
+            const { id, noMask } = meta;
+            const fullImageBlob = await zip.file("full.png").async("blob");
+            const fullImage = new Image();
+            await new Promise((resolve) => {
+              fullImage.onload = resolve;
+              fullImage.src = URL.createObjectURL(fullImageBlob);
+            });
+            meta.hitMap = createHitMap(fullImage);
+            meta.enabled = true;
+            await writeCache(`${vPath}avatar/${id}.png`, await zip.file("avatar.png").async("blob"), header);
+            await writeCache(`${vPath}characters/${id}/face.png`, await zip.file("face.png").async("blob"), header);
+            await writeCache(`${vPath}characters/${id}/face_active.png`, await zip.file("face_active.png").async("blob"), header);
+            await writeCache(`${vPath}characters/${id}/full.png`, fullImageBlob, header);
+            if (!noMask) await writeCache(`${vPath}characters/${id}/mask.png`, await zip.file("mask.png").async("blob"), header);
+            if (customChar.some((v) => v.id == id)) {
+              customChar.splice(getIndex(id), 1);
+            }
+            customChar.push(meta);
+            $("custom-characters", customChar);
+            if (!cardElem.querySelector(`div[char-id="${id}"]`)) {
+              cardElem.append(buildEntry(meta));
+            }
+          } catch (err) {
+            console.error(err);
+            dialog.show("错误", "添加自定义干员失败：", err.message);
+          }
+        });
+        dialog.show("提示", "请不要选择奇奇怪怪的压缩包，可能会造成不可知的网页bug", upload);
+      });
+      for (const charData of customChar) {
+        child.push(buildEntry(charData));
+      }
+      const cardElem = card(undefined, html("div", btnAdd), ...child);
+      return cardElem;
+    },
+  ],
+});
+
+// 检测JSZip的Blob支持情况
+if (!window.JSZip?.support?.blob) {
+  dialog.show("警告", "当前浏览器不支持JSZip的Blob功能，无法解析压缩包，因此本网页的功能将全部不可用");
+}
