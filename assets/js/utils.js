@@ -2579,9 +2579,9 @@ export const cacheList = [
   "./assets/images/icon.png",
   "./assets/css/control.css",
   "./assets/css/picnic.min.css",
-  //"./assets/js/control.js",
+  "./assets/js/control.js",
   "./assets/js/utils.js",
-  // "./assets/js/patches.js",
+  "./assets/js/patches.js",
 ];
 /** 对 main.9efe80.js 进行修改，以增强功能和修复bug */
 const patchJsPath = `${self.location.origin}/${self.location.pathname.replace("sw.js", "")}assets/js/patches.js`;
