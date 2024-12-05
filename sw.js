@@ -1,7 +1,7 @@
 import { cacheStorageKey, cacheList, jsModifyList, htmlModifyList, jsonResponse } from "./assets/js/utils.js";
 
 /** 当前版本号。如果版本号发生变动，则删除缓存的cacheList */
-const version = 5;
+const version = 6;
 
 /** 记录不在缓存中的web.hycdn.cn的资源url */
 let lostURLs = [];

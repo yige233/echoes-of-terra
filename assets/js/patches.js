@@ -34,7 +34,7 @@ export async function touchVoice(e) {
   let currentVoice = voiceSettings.custom[charId] || voiceSettings.default || fallbackVoice;
 
   /** 随机语音ID */
-  const randomVoiceMap = ["002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "033", "034", "036", "038", "044"];
+  const randomVoiceMap = ["002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "033", "034", "036", "038", "043", "044"];
   const voiceId = randomVoiceMap[Math.floor(Math.random() * randomVoiceMap.length)];
 
   /** 可能存在的语音后缀 */
